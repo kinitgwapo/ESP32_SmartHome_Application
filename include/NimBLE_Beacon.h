@@ -6,6 +6,6 @@
 #include <esp_log.h>
 
 // Initializes Non-volatile Storage default partition
-void NVS_Flash(void);
+void NVS_Flash_Initialize(void);
 
 #endif

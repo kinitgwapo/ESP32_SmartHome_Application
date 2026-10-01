@@ -2,7 +2,7 @@
 
 const char *NimBLE_Beacon_TAG = "NimBLE Beacon";
 
-void NVS_Flash(void) {
+void NVS_Flash_Initialize(void) {
     esp_err_t nvs_result = nvs_flash_init();
 
     if(nvs_result == ESP_ERR_NVS_NO_FREE_PAGES || nvs_result == ESP_ERR_NVS_NEW_VERSION_FOUND) {
