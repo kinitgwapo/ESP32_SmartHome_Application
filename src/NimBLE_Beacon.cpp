@@ -11,5 +11,14 @@ void NVS_Flash_Initialize(void) {
     }
     if(nvs_result != ESP_OK) {
         ESP_LOGE(NimBLE_Beacon_TAG, "Failed to Initialize default nvs partition. Error Code: %d", nvs_result);
+        return;
+    }
+}
+
+void NimBLE_Host_Stack_Initialize(void) {
+    esp_err_t nimble_result = nimble_port_init();
+    if(nimble_result != ESP_OK) {
+        ESP_LOGE(NimBLE_Beacon_TAG, "Failed to Initialize Nimble Host Stack. Error Code: %d", nimble_result);
+        return;
     }
 }
