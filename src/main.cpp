@@ -5,4 +5,5 @@ extern "C" void app_main() {
     NVS_Flash_Initialize();
     NimBLE_Host_Stack_Initialize();
     GAPService_TO_GATTServer();
+    NimBLE_Host_Config_Init();
 }
