@@ -22,3 +22,21 @@ void NimBLE_Host_Stack_Initialize(void) {
         return;
     }
 }
+
+void GAPService_TO_GATTServer(void) {
+    ble_svc_gap_init();
+
+    int gapsvc_result = ble_svc_gap_device_name_set(ESP32_DEVICE_NAME);
+    if(gapsvc_result != 0) {
+        ESP_LOGE(NimBLE_Beacon_TAG, "Failed to set Device Name. Error Code: %d", gapsvc_result);
+        return;
+    }
+
+    gapsvc_result = ble_svc_gap_device_appearance_set(BLE_GAP_APPEARANCE_GENERIC_TAG);
+    if(gapsvc_result != 0) {
+        ESP_LOGE(NimBLE_Beacon_TAG, "Failed to set Device Apperance. Error Code: %d", gapsvc_result);
+        return;
+    }
+
+    return;
+}
