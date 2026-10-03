@@ -1,3 +1,8 @@
+extern "C" {
+// Library Function Declaration (Due to ESP-IDF Omitting the ble_store_config header file)
+void ble_store_config_init(void);
+}
+
 #include "NimBLE_Beacon.h"
 
 const char *NimBLE_Beacon_TAG = "NimBLE Beacon";
@@ -41,12 +46,102 @@ void GAPService_TO_GATTServer(void) {
     return;
 }
 
+
+
+
+
+
+
+
+
+static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value) {
+    const char *name;
+    struct ble_hs_adv_fields advertise_data = {0};
+    struct ble_hs_adv_fields response_data = {0};
+    struct ble_gap_adv_params advertise_parameters = {0};
+    uint8_t uri[] = {'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'};
+
+    advertise_data.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
+
+    name = ble_svc_gap_device_name();
+    if(name == NULL) {
+        name = ESP32_DEVICE_NAME;
+    }
+    advertise_data.name = (uint8_t *)name;
+    advertise_data.name_len = strlen(name);
+    advertise_data.name_is_complete = 1;
+
+    advertise_data.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
+    advertise_data.tx_pwr_lvl_is_present = 1;
+
+    advertise_data.appearance = BLE_GAP_APPEARANCE_GENERIC_TAG;
+    advertise_data.appearance_is_present = 1;
+
+    advertise_data.le_role = BLE_GAP_LE_ROLE_PERIPHERAL;
+    advertise_data.le_role_is_present = 1;
+
+    int result = ble_gap_adv_set_fields(&advertise_data);
+    if(result != 0) {
+        ESP_LOGE(NimBLE_Beacon_TAG, "Failed to set Advertising Data. Error Code: %d", result);
+        return;
+    }
+
+    response_data.device_addr = btaddress_value;
+    response_data.device_addr_type = *btaddress_type;
+    response_data.device_addr_is_present = 1;
+
+    response_data.uri = uri;
+    response_data.uri_len = sizeof(uri);
+
+    result = ble_gap_adv_rsp_set_fields(&response_data);
+    if(result != 0) {
+        ESP_LOGE(NimBLE_Beacon_TAG, "Failed to set scan response data. Error Code: %d", result);
+    }
+
+    advertise_parameters.conn_mode = BLE_GAP_CONN_MODE_NON;
+    advertise_parameters.disc_mode = BLE_GAP_DISC_MODE_GEN;
+
+    result = ble_gap_adv_start(*btaddress_type, NULL, BLE_HS_FOREVER, &advertise_parameters, NULL, NULL);
+    if(result != 0) {
+        ESP_LOGE(NimBLE_Beacon_TAG, "Failed to Start Advertising. Error Code: %d", result);
+        return;
+    }
+
+    ESP_LOGI(NimBLE_Beacon_TAG, "Advertising Started!");
+}
+
 static void NimBLE_Reset_Callback(int reason) {
     ESP_LOGI(NimBLE_Beacon_TAG, "NimBLE Stack Reset. Reason: %d", reason);
 }
 
 static void NimBLE_Sync_Callback(void) {
+    char btaddress_string[18] = {0};
+    uint8_t btaddress_type;
+    uint8_t btaddress_value[6] = {0};
 
+    int btaddress_result = ble_hs_util_ensure_addr(0);
+    if(btaddress_result != 0) {
+        ESP_LOGE(NimBLE_Beacon_TAG, "Device does not have any available Bluetooth Address!");
+        return;
+    }
+
+    btaddress_result = ble_hs_id_infer_auto(0, &btaddress_type);
+    if(btaddress_result != 0) {
+        ESP_LOGE(NimBLE_Beacon_TAG, "Failed to Infer Address Type. Error Code: %d", btaddress_result);
+        return;
+    }
+
+    btaddress_result = ble_hs_id_copy_addr(btaddress_type, btaddress_value, NULL);
+    if(btaddress_result != 0) {
+        ESP_LOGE(NimBLE_Beacon_TAG, "Failed to Copy Device address. Error Code: %d", btaddress_result);
+        return;
+    }
+
+    // Arrange Address Format
+    sprintf(btaddress_string, "%02X:%02X:%02X:%02X:%02X:%02X", btaddress_value[0], btaddress_value[1], btaddress_value[2], btaddress_value[3], btaddress_value[4], btaddress_value[5]);
+    ESP_LOGI(NimBLE_Beacon_TAG, "Device Address: %s", btaddress_string);
+
+    Start_Advertise(&btaddress_type, btaddress_value);
 }
 
 void NimBLE_Host_Config_Init(void) {
