@@ -7,6 +7,8 @@
 - NimBLE Host Stack Initialization
 - Expose some GAP Service to GATT Server
 - Configured callback functions for NimBLE Host Stack
+- FreeRTOS NimBLE Host Stack Task Initialization
+- Unconnectable ESP32 Device Advertising with URI Message
 
 ## References:
 
