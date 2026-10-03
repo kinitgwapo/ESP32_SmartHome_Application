@@ -59,7 +59,7 @@ static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value) {
     struct ble_hs_adv_fields advertise_data = {};
     struct ble_hs_adv_fields response_data = {};
     struct ble_gap_adv_params advertise_parameters = {};
-    uint8_t uri[] = {0x00, 'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'};
+    uint8_t uri[] = {0x00,'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd', '!'};
 
     advertise_data.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
 
