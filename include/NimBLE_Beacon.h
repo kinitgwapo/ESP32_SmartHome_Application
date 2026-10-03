@@ -12,6 +12,8 @@
 
 #include <services/gap/ble_svc_gap.h>
 
+#include <host/ble_hs.h>
+
 // Initializes Non-volatile Storage default partition
 void NVS_Flash_Initialize(void);
 
@@ -20,5 +22,13 @@ void NimBLE_Host_Stack_Initialize(void);
 
 // Expose some GAP Services to GATT Server
 void GAPService_TO_GATTServer(void);
+
+// Configuration for the NimBle Host Stack
+void NimBLE_Host_Config_Init(void);
+
+extern "C" {
+// Library Function Declaration (Due to ESP-IDF Omitting the ble_store_config header file)
+void ble_store_config_init(void);
+}
 
 #endif

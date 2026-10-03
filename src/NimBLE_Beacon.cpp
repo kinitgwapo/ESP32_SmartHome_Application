@@ -40,3 +40,20 @@ void GAPService_TO_GATTServer(void) {
 
     return;
 }
+
+static void NimBLE_Reset_Callback(int reason) {
+    ESP_LOGI(NimBLE_Beacon_TAG, "NimBLE Stack Reset. Reason: %d", reason);
+}
+
+static void NimBLE_Sync_Callback(void) {
+
+}
+
+void NimBLE_Host_Config_Init(void) {
+    // Callback functions to be used by NimBLE Host Stack
+    ble_hs_cfg.reset_cb = NimBLE_Reset_Callback;
+    ble_hs_cfg.sync_cb = NimBLE_Sync_Callback;
+    ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
+
+    ble_store_config_init();
+}
