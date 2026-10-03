@@ -6,4 +6,5 @@ extern "C" void app_main() {
     NimBLE_Host_Stack_Initialize();
     GAPService_TO_GATTServer();
     NimBLE_Host_Config_Init();
+    FreeRTOS_Task_Initialize();
 }
