@@ -3,6 +3,9 @@
 ## ESP-IDF BLE Configuration Progress
 
 ### DONE:
+
+#### BLE Beacon Example
+
 - NVS Initialization
 - NimBLE Host Stack Initialization
 - Expose some GAP Service to GATT Server
@@ -12,4 +15,5 @@
 
 ## References:
 
-BLE Guide: https://github.com/espressif/esp-idf/tree/master/examples/bluetooth/ble_get_started/nimble/NimBLE_Beacon
+BLE Guide: https://github.com/espressif/esp-idf/tree/master/examples/bluetooth/ble_get_started/nimble
+BLE Beacon Guide: https://github.com/espressif/esp-idf/tree/master/examples/bluetooth/ble_get_started/nimble/NimBLE_Beacon
