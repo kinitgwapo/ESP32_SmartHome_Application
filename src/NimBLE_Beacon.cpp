@@ -186,47 +186,49 @@ static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
 
                 if(result != 0) {
                     ESP_LOGE(NimBLE_Beacon_TAG, "Failed to find connection handle. Error Code: %d", result);
-                    return;
+                    return result;
                 }
 
                 print_connection_descriptor(&descriptor);
 
-                struct ble_gap_upd_params update_params = {
-                    .itvl_min = descriptor.conn_itvl,
-                    .itvl_max = descriptor.conn_itvl,
-                    .latency = 3,
-                    .supervision_timeout = descriptor.supervision_timeout
-                };
+                struct ble_gap_upd_params update_params = {};
+                update_params.itvl_min = descriptor.conn_itvl;
+                update_params.itvl_max = descriptor.conn_itvl;
+                update_params.latency = 3;
+                update_params.supervision_timeout = descriptor.supervision_timeout;
 
                 result = ble_gap_update_params(event->connect.conn_handle, &update_params);
                 if(result != 0) {
                     ESP_LOGE(NimBLE_Beacon_TAG, "Failed to update connection parameters. Error Code: %d", result);
-                    return;
+                    return result;
                 }
 
             } else {
                 ESP_LOGI(NimBLE_Beacon_TAG, "Connection Status: %d", event->connect.status);
                 Start_Advertise();
             }
-            return;
+            return result;
+
         case BLE_GAP_EVENT_DISCONNECT:
             ESP_LOGI(NimBLE_Beacon_TAG, "Disconnected from Peer: %d", event->disconnect.reason);
             
             Start_Advertise();
-            return;
+            return result;
+
         case BLE_GAP_EVENT_CONN_UPDATE:
             ESP_LOGI(NimBLE_Beacon_TAG, "Connection Updated Status: %d", event->conn_update.status);
 
             result = ble_gap_conn_find(event->conn_update.conn_handle, &descriptor);
             if(result !=0) {
                 ESP_LOGE(NimBLE_Beacon_TAG, "Failed to find connection by handle. Error Code: %d", result);
-                return;
+                return result;
             }
 
             print_connection_descriptor(&descriptor);
 
-            return;
+            return result;
     }
+    return result;
 }
 
 
