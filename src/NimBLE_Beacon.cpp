@@ -93,13 +93,18 @@ static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value) {
     response_data.uri = uri;
     response_data.uri_len = sizeof(uri);
 
+    response_data.adv_itvl = BLE_GAP_ADV_ITVL_MS(500);
+
     result = ble_gap_adv_rsp_set_fields(&response_data);
     if(result != 0) {
         ESP_LOGE(NimBLE_Beacon_TAG, "Failed to set scan response data. Error Code: %d", result);
     }
 
-    advertise_parameters.conn_mode = BLE_GAP_CONN_MODE_NON;
+    advertise_parameters.conn_mode = BLE_GAP_CONN_MODE_UND;
     advertise_parameters.disc_mode = BLE_GAP_DISC_MODE_GEN;
+
+    advertise_parameters.itvl_min = BLE_GAP_ADV_ITVL_MS(500);
+    advertise_parameters.itvl_max = BLE_GAP_ADV_ITVL_MS(510);
 
     result = ble_gap_adv_start(*btaddress_type, NULL, BLE_HS_FOREVER, &advertise_parameters, NULL, NULL);
     if(result != 0) {
