@@ -207,7 +207,13 @@ static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
                 ESP_LOGI(NimBLE_Beacon_TAG, "Connection Status: %d", event->connect.status);
                 Start_Advertise();
             }
-            break;
+            return;
+
+            case BLE_GAP_EVENT_DISCONNECT:
+                ESP_LOGI(NimBLE_Beacon_TAG, "Disconnected from Peer: %d", event->disconnect.reason);
+                
+                Start_Advertise();
+                return;
     }
 }
 
