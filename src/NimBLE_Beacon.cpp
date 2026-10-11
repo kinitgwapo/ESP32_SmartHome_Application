@@ -1,9 +1,14 @@
+#include "NimBLE_Beacon.h"
+
 extern "C" {
 // Library Function Declaration (Due to ESP-IDF Omitting the ble_store_config header file)
 void ble_store_config_init(void);
 }
 
-#include "NimBLE_Beacon.h"
+static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value);
+static int GAP_Event_Handler(struct ble_gap_event *event, void *arg);
+static void NimBLE_Reset_Callback(int reason);
+static void NimBLE_Sync_Callback(void);
 
 const char *NimBLE_Beacon_TAG = "NimBLE Beacon";
 
@@ -45,6 +50,16 @@ void GAPService_TO_GATTServer(void) {
 
     return;
 }
+
+void NimBLE_Host_Config_Init(void) {
+    // Callback functions to be used by NimBLE Host Stack
+    ble_hs_cfg.reset_cb = NimBLE_Reset_Callback;
+    ble_hs_cfg.sync_cb = NimBLE_Sync_Callback;
+    ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
+
+    ble_store_config_init();
+}
+
 
 
 
@@ -115,6 +130,36 @@ static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value) {
     ESP_LOGI(NimBLE_Beacon_TAG, "Advertising Started!");
 }
 
+
+
+
+
+
+
+
+
+
+static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
+    switch(event->type) {
+        case BLE_GAP_EVENT_CONNECT:
+            if(event->connect.status == 0) {
+
+            } else {
+
+            }
+            break;
+    }
+}
+
+
+
+
+
+
+
+
+
+
 static void NimBLE_Reset_Callback(int reason) {
     ESP_LOGI(NimBLE_Beacon_TAG, "NimBLE Stack Reset. Reason: %d", reason);
 }
@@ -147,13 +192,4 @@ static void NimBLE_Sync_Callback(void) {
     ESP_LOGI(NimBLE_Beacon_TAG, "Device Address: %s", btaddress_string);
 
     Start_Advertise(&btaddress_type, btaddress_value);
-}
-
-void NimBLE_Host_Config_Init(void) {
-    // Callback functions to be used by NimBLE Host Stack
-    ble_hs_cfg.reset_cb = NimBLE_Reset_Callback;
-    ble_hs_cfg.sync_cb = NimBLE_Sync_Callback;
-    ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
-
-    ble_store_config_init();
 }
