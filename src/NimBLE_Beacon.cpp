@@ -157,6 +157,17 @@ static void print_connection_descriptor(struct ble_gap_conn_desc *descriptor) {
     ESP_LOGI(NimBLE_Beacon_TAG, "Connection Handle: %d", descriptor->conn_handle);
 
     address_format(address_string, descriptor->our_id_addr.val);
+    ESP_LOGI(NimBLE_Beacon_TAG, "Device ID Address Type & Value: %d, %s", descriptor->our_id_addr.type, address_string);
+
+    address_format(address_string, descriptor->peer_id_addr.val);
+    ESP_LOGI(NimBLE_Beacon_TAG, "Peer ID Address Type & Value: %d, %s", descriptor->peer_id_addr.type, address_string);
+
+    ESP_LOGI(NimBLE_Beacon_TAG, "conn_itvl=%d, conn_latency=%d, supervision_timeout=%d, "
+             "encrypted=%d, authenticated=%d, bonded=%d\n",
+             descriptor->conn_itvl, descriptor->conn_latency, descriptor->supervision_timeout,
+             descriptor->sec_state.encrypted, descriptor->sec_state.authenticated,
+             descriptor->sec_state.bonded
+            );
 }
 
 
