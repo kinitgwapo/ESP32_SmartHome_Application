@@ -6,8 +6,12 @@ void ble_store_config_init(void);
 }
 
 static void Start_Advertise(void);
-inline static void address_format(char *btaddress_string);
+
+inline static void address_format(char *btaddress_string, uint8_t address_value[]);
+static void print_connection_descriptor(struct ble_gap_conn_desc *descriptor);
+
 static int GAP_Event_Handler(struct ble_gap_event *event, void *arg);
+
 static void NimBLE_Reset_Callback(int reason);
 static void NimBLE_Sync_Callback(void);
 
@@ -142,12 +146,18 @@ static void Start_Advertise(void) {
     ESP_LOGI(NimBLE_Beacon_TAG, "Advertising Started!");
 }
 
-inline static void address_format(char *btaddress_string) {
+inline static void address_format(char *btaddress_string, uint8_t address_value[]) {
     sprintf(btaddress_string, "%02X:%02X:%02X:%02X:%02X:%02X", btaddress_value[0], btaddress_value[1], btaddress_value[2], btaddress_value[3], btaddress_value[4], btaddress_value[5]);
     ESP_LOGI(NimBLE_Beacon_TAG, "Device Address: %s", btaddress_string);
 }
 
+static void print_connection_descriptor(struct ble_gap_conn_desc *descriptor) {
+    char address_string[18] = {0};
 
+    ESP_LOGI(NimBLE_Beacon_TAG, "Connection Handle: %d", descriptor->conn_handle);
+
+    address_format(address_string, descriptor->our_id_addr.val);
+}
 
 
 
@@ -167,8 +177,21 @@ static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
                     return;
                 }
 
+                struct ble_gap_upd_params update_params = {
+                    .itvl_min = descriptor.conn_itvl,
+                    .itvl_max = descriptor.conn_itvl,
+                    .latency = 3,
+                    .supervision_timeout = descriptor.supervision_timeout
+                };
+
+                result = ble_gap_update_params(event->connect.conn_handle, &update_params);
+                if(result != 0) {
+                    ESP_LOGE(NimBLE_Beacon_TAG, "Failed to update connection parameters. Error Code: %d", result);
+                    return;
+                }
 
             } else {
+                ESP_LOGI(NimBLE_Beacon_TAG, "Connection Status: %d", event->connect.status);
                 Start_Advertise();
             }
             break;
@@ -210,7 +233,7 @@ static void NimBLE_Sync_Callback(void) {
     }
 
     // Arrange Address Format
-    address_format(btaddress_string);
+    address_format(btaddress_string, btaddress_value);
 
     Start_Advertise();
 }
