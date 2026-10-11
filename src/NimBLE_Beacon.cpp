@@ -5,10 +5,14 @@ extern "C" {
 void ble_store_config_init(void);
 }
 
-static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value);
+static void Start_Advertise(void);
+inline static void address_format(char *btaddress_string);
 static int GAP_Event_Handler(struct ble_gap_event *event, void *arg);
 static void NimBLE_Reset_Callback(int reason);
 static void NimBLE_Sync_Callback(void);
+
+static uint8_t btaddress_type;
+static uint8_t btaddress_value[6] = {0};
 
 const char *NimBLE_Beacon_TAG = "NimBLE Beacon";
 
@@ -69,7 +73,7 @@ void NimBLE_Host_Config_Init(void) {
 
 
 
-static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value) {
+static void Start_Advertise(void) {
     const char *name;
     struct ble_hs_adv_fields advertise_data = {};
     struct ble_hs_adv_fields response_data = {};
@@ -102,7 +106,7 @@ static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value) {
     }
 
     response_data.device_addr = btaddress_value;
-    response_data.device_addr_type = *btaddress_type;
+    response_data.device_addr_type = btaddress_type;
     response_data.device_addr_is_present = 1;
 
     response_data.uri = uri;
@@ -121,13 +125,18 @@ static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value) {
     advertise_parameters.itvl_min = BLE_GAP_ADV_ITVL_MS(500);
     advertise_parameters.itvl_max = BLE_GAP_ADV_ITVL_MS(510);
 
-    result = ble_gap_adv_start(*btaddress_type, NULL, BLE_HS_FOREVER, &advertise_parameters, NULL, NULL);
+    result = ble_gap_adv_start(btaddress_type, NULL, BLE_HS_FOREVER, &advertise_parameters, NULL, NULL);
     if(result != 0) {
         ESP_LOGE(NimBLE_Beacon_TAG, "Failed to Start Advertising. Error Code: %d", result);
         return;
     }
 
     ESP_LOGI(NimBLE_Beacon_TAG, "Advertising Started!");
+}
+
+inline static void address_format(char *btaddress_string) {
+    sprintf(btaddress_string, "%02X:%02X:%02X:%02X:%02X:%02X", btaddress_value[0], btaddress_value[1], btaddress_value[2], btaddress_value[3], btaddress_value[4], btaddress_value[5]);
+    ESP_LOGI(NimBLE_Beacon_TAG, "Device Address: %s", btaddress_string);
 }
 
 
@@ -137,15 +146,22 @@ static void Start_Advertise(uint8_t *btaddress_type, uint8_t *btaddress_value) {
 
 
 
-
-
 static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
+    struct ble_gap_conn_desc descriptor;
+
     switch(event->type) {
         case BLE_GAP_EVENT_CONNECT:
             if(event->connect.status == 0) {
+                int result = ble_gap_conn_find(event->connect.conn_handle, &descriptor);
+
+                if(result != 0) {
+                    ESP_LOGE(NimBLE_Beacon_TAG, "Failed to find connection handle. Error Code: %d", result);
+                    return;
+                }
+
 
             } else {
-
+                Start_Advertise();
             }
             break;
     }
@@ -166,8 +182,6 @@ static void NimBLE_Reset_Callback(int reason) {
 
 static void NimBLE_Sync_Callback(void) {
     char btaddress_string[18] = {0};
-    uint8_t btaddress_type;
-    uint8_t btaddress_value[6] = {0};
 
     int btaddress_result = ble_hs_util_ensure_addr(0);
     if(btaddress_result != 0) {
@@ -188,8 +202,7 @@ static void NimBLE_Sync_Callback(void) {
     }
 
     // Arrange Address Format
-    sprintf(btaddress_string, "%02X:%02X:%02X:%02X:%02X:%02X", btaddress_value[0], btaddress_value[1], btaddress_value[2], btaddress_value[3], btaddress_value[4], btaddress_value[5]);
-    ESP_LOGI(NimBLE_Beacon_TAG, "Device Address: %s", btaddress_string);
+    address_format(btaddress_string);
 
-    Start_Advertise(&btaddress_type, btaddress_value);
+    Start_Advertise();
 }
