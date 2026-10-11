@@ -16,6 +16,14 @@ static uint8_t btaddress_value[6] = {0};
 
 const char *NimBLE_Beacon_TAG = "NimBLE Beacon";
 
+
+
+
+
+
+
+
+
 void NVS_Flash_Initialize(void) {
     esp_err_t nvs_result = nvs_flash_init();
 
@@ -125,7 +133,7 @@ static void Start_Advertise(void) {
     advertise_parameters.itvl_min = BLE_GAP_ADV_ITVL_MS(500);
     advertise_parameters.itvl_max = BLE_GAP_ADV_ITVL_MS(510);
 
-    result = ble_gap_adv_start(btaddress_type, NULL, BLE_HS_FOREVER, &advertise_parameters, NULL, NULL);
+    result = ble_gap_adv_start(btaddress_type, NULL, BLE_HS_FOREVER, &advertise_parameters, GAP_Event_Handler, NULL);
     if(result != 0) {
         ESP_LOGE(NimBLE_Beacon_TAG, "Failed to Start Advertising. Error Code: %d", result);
         return;
