@@ -147,7 +147,7 @@ static void Start_Advertise(void) {
 }
 
 inline static void address_format(char *btaddress_string, uint8_t address_value[]) {
-    sprintf(btaddress_string, "%02X:%02X:%02X:%02X:%02X:%02X", btaddress_value[0], btaddress_value[1], btaddress_value[2], btaddress_value[3], btaddress_value[4], btaddress_value[5]);
+    sprintf(btaddress_string, "%02X:%02X:%02X:%02X:%02X:%02X", address_value[0], address_value[1], address_value[2], address_value[3], address_value[4], address_value[5]);
     ESP_LOGI(NimBLE_Beacon_TAG, "Device Address: %s", btaddress_string);
 }
 
@@ -157,7 +157,7 @@ static void print_connection_descriptor(struct ble_gap_conn_desc *descriptor) {
     ESP_LOGI(NimBLE_Beacon_TAG, "Connection Handle: %d", descriptor->conn_handle);
 
     address_format(address_string, descriptor->our_id_addr.val);
-    ESP_LOGI(NimBLE_Beacon_TAG, "Device ID Address Type & Value: %d, %s", descriptor->our_id_addr.type, address_string);
+    ESP_LOGI(NimBLE_Beacon_TAG, "Our ID Address Type & Value: %d, %s", descriptor->our_id_addr.type, address_string);
 
     address_format(address_string, descriptor->peer_id_addr.val);
     ESP_LOGI(NimBLE_Beacon_TAG, "Peer ID Address Type & Value: %d, %s", descriptor->peer_id_addr.type, address_string);
