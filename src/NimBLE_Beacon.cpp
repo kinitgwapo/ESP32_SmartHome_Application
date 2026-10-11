@@ -176,12 +176,13 @@ static void print_connection_descriptor(struct ble_gap_conn_desc *descriptor) {
 
 
 static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
+    int result = 0;
     struct ble_gap_conn_desc descriptor;
 
     switch(event->type) {
         case BLE_GAP_EVENT_CONNECT:
             if(event->connect.status == 0) {
-                int result = ble_gap_conn_find(event->connect.conn_handle, &descriptor);
+                result = ble_gap_conn_find(event->connect.conn_handle, &descriptor);
 
                 if(result != 0) {
                     ESP_LOGE(NimBLE_Beacon_TAG, "Failed to find connection handle. Error Code: %d", result);
@@ -212,6 +213,18 @@ static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
             ESP_LOGI(NimBLE_Beacon_TAG, "Disconnected from Peer: %d", event->disconnect.reason);
             
             Start_Advertise();
+            return;
+        case BLE_GAP_EVENT_CONN_UPDATE:
+            ESP_LOGI(NimBLE_Beacon_TAG, "Connection Updated Status: %d", event->conn_update.status);
+
+            result = ble_gap_conn_find(event->conn_update.conn_handle, &descriptor);
+            if(result !=0) {
+                ESP_LOGE(NimBLE_Beacon_TAG, "Failed to find connection by handle. Error Code: %d", result);
+                return;
+            }
+
+            print_connection_descriptor(&descriptor);
+
             return;
     }
 }
