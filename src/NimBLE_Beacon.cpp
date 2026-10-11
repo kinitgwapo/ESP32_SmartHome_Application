@@ -188,6 +188,8 @@ static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
                     return;
                 }
 
+                print_connection_descriptor(&descriptor);
+
                 struct ble_gap_upd_params update_params = {
                     .itvl_min = descriptor.conn_itvl,
                     .itvl_max = descriptor.conn_itvl,
