@@ -17,6 +17,7 @@
 
 - Connectable ESp32 Device Advertising
 - Callback function for BLE GAP Connect/Disconnect/Update (Update not used)
+- Added LED for Connection Status
 
 <img width="1509" height="854" alt="LED Wiring Diagram" src="https://github.com/user-attachments/assets/d3f55785-29f0-4d3a-98ed-af33fe030044" />
 
