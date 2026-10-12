@@ -19,6 +19,8 @@
 
 #include "FreeRTOS_Objects.h"
 
+#include "led.h"
+
 // Initializes Non-volatile Storage default partition
 void NVS_Flash_Initialize(void);
 
