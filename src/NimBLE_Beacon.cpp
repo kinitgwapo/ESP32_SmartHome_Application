@@ -190,6 +190,7 @@ static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
                 }
 
                 print_connection_descriptor(&descriptor);
+                LED_On();
 
                 struct ble_gap_upd_params update_params = {};
                 update_params.itvl_min = descriptor.conn_itvl;
@@ -211,6 +212,8 @@ static int GAP_Event_Handler(struct ble_gap_event *event, void *arg) {
 
         case BLE_GAP_EVENT_DISCONNECT:
             ESP_LOGI(NimBLE_Beacon_TAG, "Disconnected from Peer: %d", event->disconnect.reason);
+
+            LED_Off();
             
             Start_Advertise();
             return result;
