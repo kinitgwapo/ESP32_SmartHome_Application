@@ -2,6 +2,8 @@
 
 extern "C" void app_main() {
     // Testing Hardware Port and a few Initializations
+    LED_PIN_Initialize();
+    
     NVS_Flash_Initialize();
     NimBLE_Host_Stack_Initialize();
     GAPService_TO_GATTServer();
